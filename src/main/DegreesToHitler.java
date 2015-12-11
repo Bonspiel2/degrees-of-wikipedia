@@ -31,20 +31,32 @@ public class DegreesToHitler {
 		
 		linksToHitler = wiki.whatLinksHere("Adolf Hitler");
 		
-		System.out.println("Enter a page to start from: ");
-		String firstPage = in.nextLine();
+		boolean running = true;
 		
-		String[] links = wiki.getLinksOnPage(firstPage);
-		
-		links = clean(links);
-		
-		//findHitler(firstPage, 5);
-		
-		//System.out.println(path);
-		
-		for (String link : links){
-			System.out.println(link);
+		while (running){
+			System.out.println("Enter a page to start from: ");
+			String firstPage = in.nextLine();
+			
+			if (firstPage.equals("~exit")){
+				running = false;
+			} else {
+			
+				//String[] links = wiki.getLinksOnPage(firstPage);
+				
+				//links = clean(links);
+				
+				findHitler(firstPage, 5);
+				System.out.println(path);
+				
+				path = "";
+				alreadyVisited = "";
+			
+			}
 		}
+		
+//		for (String link : links){
+//			System.out.println(link);
+//		}
 		
 		
 		wiki.logout();
