@@ -1,23 +1,29 @@
 package main;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.security.auth.login.FailedLoginException;
 
 import org.wikipedia.Wiki;
 
+import tree.Tree;
+import tree.Tree.Node;
+
 public class DegreesToHitler {
 	
-	private static String path = "";
+	private static ArrayList<Node<String>> path;
 	
 	private static String alreadyVisited = "";
 	static Wiki wiki = new Wiki("en.wikipedia.org");
 	
-	private static String[] linksToHitler;
+	private static Tree dataBase;
 
 	public static void main(String[] args) throws IOException {
+		@SuppressWarnings("resource")
 		Scanner in = new Scanner(System.in);
 		
 		wiki.setThrottle(0);
@@ -31,7 +37,14 @@ public class DegreesToHitler {
 		
 		wiki.setResolveRedirects(true);
 		
-		linksToHitler = wiki.whatLinksHere("Adolf Hitler");
+		dataBase = new Tree<String>("Adolf Hitler");
+		
+		String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler");
+		
+		for (int i = 0; i < linksToHitler.length; i++){
+			Node<String> root = dataBase.getRoot();
+			root.addChild(linksToHitler[i]);
+		}
 		
 		boolean running = true;
 		
@@ -50,12 +63,15 @@ public class DegreesToHitler {
 				findHitler(firstPage, 5);
 				
 				if (!path.isEmpty()){
-					System.out.println(path);
+					for (int i = 0; i < path.size(); i++){
+						System.out.print(path.get(i).getData() + " >");
+					}
+					System.out.println();
 				} else {
 					System.out.println("This page does not exist");
 				}
 				
-				path = "";
+				path.clear();
 				alreadyVisited = "";
 			
 			}
@@ -76,35 +92,47 @@ public class DegreesToHitler {
 			return false;
 		}
 		
+		boolean found = false;
+		
 		String[] links = wiki.getLinksOnPage(page);
 		
 		links = clean(links);
+		
+		Node<String> root = dataBase.getRoot();
 	
 		
-		if (contains(links, "Adolf Hitler")){
-			path+= page + " > Adolf Hitler";
+		if (contains(links, (String) root.getData())){
+			path.add(new Node<String>(page, root));
+			path.add(root);
 			return true;
 		} else if (degrees == 1){
 			return false;
 		} else {
-			String linkToClick = closeToHitler(links);
 			
-			if (!linkToClick.isEmpty()){
-				path+= page + " >" + linkToClick + " > Adolf Hitler";
-				return true;
+			List<Node<String>> rootChildren = root.getChildren();
+			
+			for (int i = 0; i < rootChildren.size() && !found; i++){
+				if (contains(links, rootChildren.get(i).getData())){
+					path.add(new Node<String>(page, rootChildren.get(i)));
+					path.add(rootChildren.get(i));
+					path.add(root);
+					found = true;
+				}
 			}
-			for (int i = 0; i < links.length; i++){
+			
+			for (int i = 0; i < links.length && !found; i++){
 				if (!alreadyVisited.contains("~" + links[i] + "~")){
 					if (findHitler(links[i], degrees - 1)){
-						path = page + " >" + path;
-						return true;
+						path.add(0, new Node<String>(page, rootChildren.get(i)));
+						found = true;
 					} else {
 						alreadyVisited+="~" + links[i] + "~";
 					}
 				}
 			}
+			
+			return found;
 		}
-		return false;
 		
 	}
 	
@@ -115,15 +143,6 @@ public class DegreesToHitler {
 			}
 		}
 		return false;
-	}
-	
-	private static String closeToHitler(String[] links){
-		for (int i = 0; i < links.length; i++){
-			if (contains(linksToHitler, links[i])){
-				return links[i];
-			}
-		}
-		return "";
 	}
 	
 	private static String[] clean(String[] links){
