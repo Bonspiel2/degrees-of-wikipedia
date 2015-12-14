@@ -29,6 +29,8 @@ public class DegreesToHitler {
 			e.printStackTrace();
 		}
 		
+		wiki.setResolveRedirects(true);
+		
 		linksToHitler = wiki.whatLinksHere("Adolf Hitler");
 		
 		boolean running = true;
@@ -46,7 +48,12 @@ public class DegreesToHitler {
 				//links = clean(links);
 				
 				findHitler(firstPage, 5);
-				System.out.println(path);
+				
+				if (!path.isEmpty()){
+					System.out.println(path);
+				} else {
+					System.out.println("This page does not exist");
+				}
 				
 				path = "";
 				alreadyVisited = "";
