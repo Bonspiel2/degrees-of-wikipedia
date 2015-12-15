@@ -27,6 +27,8 @@ public class DegreesToHitler {
 		Scanner in = new Scanner(System.in);
 		
 		wiki.setThrottle(0);
+		
+		path = new ArrayList<Node<String>>();
 	
 		try {
 			wiki.login("DegreesOfWiki", "5orless");
@@ -64,7 +66,7 @@ public class DegreesToHitler {
 				
 				if (!path.isEmpty()){
 					for (int i = 0; i < path.size(); i++){
-						System.out.print(path.get(i).getData() + " >");
+						System.out.print(path.get(i).getData() + " > ");
 					}
 					System.out.println();
 				} else {
@@ -99,6 +101,12 @@ public class DegreesToHitler {
 		links = clean(links);
 		
 		Node<String> root = dataBase.getRoot();
+		
+		if (searchDataBase(degrees, root, page, links)){
+			return true;
+		} else {
+			
+		}
 	
 		
 		if (contains(links, (String) root.getData())){
@@ -134,6 +142,29 @@ public class DegreesToHitler {
 			return found;
 		}
 		
+	}
+	
+	private static boolean searchDataBase(int degrees, int originalDegrees, Node<String> root, String page, String[] links){
+		if (degrees == 0){
+			return false;
+		}
+		
+		if (degrees == originalDegrees){
+			if(contains(links, root.getData())){
+				path.add(new Node<String>(page, root));
+				path.add(root);
+				return true;
+			} else {
+				return searchDataBase(degrees-1, originalDegrees, root, page, links);
+			}
+		} else if (degrees == originalDegrees - 1){
+			List<Node<String>> children = root.getChildren();
+			
+			for (int i = 0; i < children.size(); i++){
+				searchDataBase(degrees, degrees, children.get(i), page, links);
+			}
+		}
+		return false;
 	}
 	
 	private static boolean contains(String[] links, String page){
