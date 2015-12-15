@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
 
 import javax.security.auth.login.FailedLoginException;
 
@@ -27,6 +28,7 @@ public class DegreesToHitler {
 		Scanner in = new Scanner(System.in);
 		
 		wiki.setThrottle(0);
+		wiki.setLogLevel(Level.OFF);
 		
 		path = new ArrayList<Node<String>>();
 	
@@ -73,6 +75,10 @@ public class DegreesToHitler {
 					System.out.println("This page does not exist");
 				}
 				
+				for (int i = path.size() - 2; i >= 0; i--){
+					
+				}
+				
 				path.clear();
 				alreadyVisited = "";
 			
@@ -102,36 +108,18 @@ public class DegreesToHitler {
 		
 		Node<String> root = dataBase.getRoot();
 		
-		if (searchDataBase(degrees, root, page, links)){
+		if (searchDataBase(degrees, degrees, root, page, links)){
 			return true;
-		} else {
-			
 		}
 	
-		
-		if (contains(links, (String) root.getData())){
-			path.add(new Node<String>(page, root));
-			path.add(root);
-			return true;
-		} else if (degrees == 1){
+		if (degrees == 1){
 			return false;
 		} else {
-			
-			List<Node<String>> rootChildren = root.getChildren();
-			
-			for (int i = 0; i < rootChildren.size() && !found; i++){
-				if (contains(links, rootChildren.get(i).getData())){
-					path.add(new Node<String>(page, rootChildren.get(i)));
-					path.add(rootChildren.get(i));
-					path.add(root);
-					found = true;
-				}
-			}
 			
 			for (int i = 0; i < links.length && !found; i++){
 				if (!alreadyVisited.contains("~" + links[i] + "~")){
 					if (findHitler(links[i], degrees - 1)){
-						path.add(0, new Node<String>(page, rootChildren.get(i)));
+						path.add(0, new Node<String>(page, null));
 						found = true;
 					} else {
 						alreadyVisited+="~" + links[i] + "~";
@@ -145,24 +133,49 @@ public class DegreesToHitler {
 	}
 	
 	private static boolean searchDataBase(int degrees, int originalDegrees, Node<String> root, String page, String[] links){
-		if (degrees == 0){
+		
+		if (degrees < 0){
 			return false;
 		}
 		
-		if (degrees == originalDegrees){
-			if(contains(links, root.getData())){
-				path.add(new Node<String>(page, root));
-				path.add(root);
+		int difference = originalDegrees - degrees;
+		
+//		if (degrees == 0){
+//			return false;
+//		}
+		
+		if (difference == 0){
+			
+			if(root.getData().equals(page)){
+				path.add(0,root);
 				return true;
 			} else {
 				return searchDataBase(degrees-1, originalDegrees, root, page, links);
 			}
-		} else if (degrees == originalDegrees - 1){
+			
+		} else if (difference == 1){
+
+			if (contains(links, root.getData())){
+				path.add(0, root);
+				path.add(0, new Node<String>(page, root));
+				return true;
+			} else {
+				return searchDataBase(degrees-1, originalDegrees, root, page, links);
+			}
+				
+		} else if (difference >= 2){
 			List<Node<String>> children = root.getChildren();
 			
-			for (int i = 0; i < children.size(); i++){
-				searchDataBase(degrees, degrees, children.get(i), page, links);
+			boolean found = false;
+			
+			for (int i = 0; i < children.size() && !found; i++){
+				found = searchDataBase(degrees, degrees, children.get(i), page, links);
 			}
+			
+			if (found){
+				path.add(root);
+			}
+			return found;
 		}
 		return false;
 	}
@@ -179,7 +192,7 @@ public class DegreesToHitler {
 	private static String[] clean(String[] links){
 		
 		for (int i = 0; i < links.length; i++){
-			if (links[i].contains("Wikipedia:")){
+			if (links[i].contains("Wikipedia:")||links[i].contains("Category:")){
 				links = Arrays.copyOf(links, i);
 			}
 		}
