@@ -16,7 +16,7 @@ import tree.Tree.Node;
 
 public class DegreesToHitler {
 	
-	private static ArrayList<Node<String>> path;
+	private static ArrayList<String> path;
 	
 	private static String alreadyVisited = "";
 	static Wiki wiki = new Wiki("en.wikipedia.org");
@@ -28,9 +28,9 @@ public class DegreesToHitler {
 		Scanner in = new Scanner(System.in);
 		
 		wiki.setThrottle(0);
-		wiki.setLogLevel(Level.OFF);
+		//wiki.setLogLevel(Level.OFF);
 		
-		path = new ArrayList<Node<String>>();
+		path = new ArrayList<String>();
 	
 		try {
 			wiki.login("DegreesOfWiki", "5orless");
@@ -43,7 +43,7 @@ public class DegreesToHitler {
 		
 		dataBase = new Tree<String>("Adolf Hitler");
 		
-		String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler");
+		String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler", Wiki.MAIN_NAMESPACE);
 		
 		for (int i = 0; i < linksToHitler.length; i++){
 			Node<String> root = dataBase.getRoot();
@@ -68,19 +68,28 @@ public class DegreesToHitler {
 				
 				if (!path.isEmpty()){
 					for (int i = 0; i < path.size(); i++){
-						System.out.print(path.get(i).getData() + " > ");
+						System.out.print(path.get(i) + " > ");
 					}
 					System.out.println();
 				} else {
 					System.out.println("This page does not exist");
 				}
 				
-				for (int i = path.size() - 2; i >= 0; i--){
-					
+				Node<String> child = dataBase.getRoot().findChild(path.get(path.size() - 2));
+				
+				
+				for (int i = path.size() - 3; i >= 0; i--){
+					if (!child.hasChild(path.get(i))){
+						child.addChild(path.get(i));
+						System.out.println("hi");
+					}
+					child = child.findChild(path.get(i));
 				}
 				
 				path.clear();
 				alreadyVisited = "";
+				
+				System.out.println(dataBase.getRoot().findChild("Federalism").hasChild("Canada"));
 			
 			}
 		}
@@ -119,7 +128,7 @@ public class DegreesToHitler {
 			for (int i = 0; i < links.length && !found; i++){
 				if (!alreadyVisited.contains("~" + links[i] + "~")){
 					if (findHitler(links[i], degrees - 1)){
-						path.add(0, new Node<String>(page, null));
+						path.add(0, page);
 						found = true;
 					} else {
 						alreadyVisited+="~" + links[i] + "~";
@@ -147,7 +156,7 @@ public class DegreesToHitler {
 		if (difference == 0){
 			
 			if(root.getData().equals(page)){
-				path.add(0,root);
+				path.add(0,root.getData());
 				return true;
 			} else {
 				return searchDataBase(degrees-1, originalDegrees, root, page, links);
@@ -156,8 +165,8 @@ public class DegreesToHitler {
 		} else if (difference == 1){
 
 			if (contains(links, root.getData())){
-				path.add(0, root);
-				path.add(0, new Node<String>(page, root));
+				path.add(0, root.getData());
+				path.add(0, page);
 				return true;
 			} else {
 				return searchDataBase(degrees-1, originalDegrees, root, page, links);
@@ -173,7 +182,7 @@ public class DegreesToHitler {
 			}
 			
 			if (found){
-				path.add(root);
+				path.add(root.getData());
 			}
 			return found;
 		}
@@ -189,10 +198,10 @@ public class DegreesToHitler {
 		return false;
 	}
 	
-	private static String[] clean(String[] links){
+	private static String[] clean(String[] links) throws IOException{
 		
 		for (int i = 0; i < links.length; i++){
-			if (links[i].contains("Wikipedia:")||links[i].contains("Category:")){
+			if (wiki.namespace(links[i]) != Wiki.MAIN_NAMESPACE){
 				links = Arrays.copyOf(links, i);
 			}
 		}

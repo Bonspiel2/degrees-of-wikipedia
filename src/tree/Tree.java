@@ -34,12 +34,39 @@ public class Tree<T> {
 			children.add(new Node<T>(child, this));
 		}
 		
+		public Node<T> findChild(T childToFind){
+			
+			T data = childToFind;
+			
+			for(Node<T> child : children){
+				if (child.getData().equals(data)){
+					return child;
+				}
+			}
+			
+			return null;
+			
+		}
+		
+		public boolean hasChild(T data){
+			for (Node<T> child : children){
+				if (child.getData().equals(data)){
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public T getData(){
 			return data;
 		}
 		
 		public Node<T> getParent(){
 			return parent;
+		}
+		
+		public void setParent(Node<T> p){
+			parent = p;
 		}
 		
 		public List<Node<T>> getChildren(){
