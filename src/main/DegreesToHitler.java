@@ -71,19 +71,19 @@ public class DegreesToHitler {
 						System.out.print(path.get(i) + " > ");
 					}
 					System.out.println();
+					
+					Node<String> child = dataBase.getRoot().findChild(path.get(path.size() - 2));
+					
+					
+					for (int i = path.size() - 3; i >= 0; i--){
+						if (!child.hasChild(path.get(i))){
+							child.addChild(path.get(i));
+							System.out.println("hi");
+						}
+						child = child.findChild(path.get(i));
+					}
 				} else {
 					System.out.println("This page does not exist");
-				}
-				
-				Node<String> child = dataBase.getRoot().findChild(path.get(path.size() - 2));
-				
-				
-				for (int i = path.size() - 3; i >= 0; i--){
-					if (!child.hasChild(path.get(i))){
-						child.addChild(path.get(i));
-						System.out.println("hi");
-					}
-					child = child.findChild(path.get(i));
 				}
 				
 				path.clear();
