@@ -1,9 +1,15 @@
 package main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 
@@ -12,7 +18,6 @@ import javax.security.auth.login.FailedLoginException;
 import org.wikipedia.Wiki;
 
 import tree.Tree;
-import tree.Tree.Node;
 
 public class DegreesToHitler {
 	
@@ -21,9 +26,9 @@ public class DegreesToHitler {
 	private static String alreadyVisited = "";
 	static Wiki wiki = new Wiki("en.wikipedia.org");
 	
-	private static Tree dataBase;
+	private static Tree<String> dataBase;
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		@SuppressWarnings("resource")
 		Scanner in = new Scanner(System.in);
 		
@@ -41,13 +46,26 @@ public class DegreesToHitler {
 		
 		wiki.setResolveRedirects(true);
 		
-		dataBase = new Tree<String>("Adolf Hitler");
+		File tmpFile = new File("src/databases/AdolfHitler.txt");
 		
-		String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler", Wiki.MAIN_NAMESPACE);
+		if (tmpFile.exists()){
 		
-		for (int i = 0; i < linksToHitler.length; i++){
-			Node<String> root = dataBase.getRoot();
-			root.addChild(linksToHitler[i]);
+			FileInputStream fileIn = new FileInputStream("src/databases/AdolfHitler.txt");
+			ObjectInputStream inFile = new ObjectInputStream(fileIn);
+			dataBase = (Tree<String>) inFile.readObject();
+			inFile.close();
+			fileIn.close();
+		} else {
+			
+			tmpFile.createNewFile();
+		
+			dataBase = new Tree<String>("Adolf Hitler");
+			
+			String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler", Wiki.MAIN_NAMESPACE);
+			
+			for (int i = 0; i < linksToHitler.length; i++){
+				dataBase.addNode(linksToHitler[i], "Adolf Hitler");
+			}
 		}
 		
 		boolean running = true;
@@ -72,15 +90,12 @@ public class DegreesToHitler {
 					}
 					System.out.println();
 					
-					Node<String> child = dataBase.getRoot().findChild(path.get(path.size() - 2));
 					
 					
-					for (int i = path.size() - 3; i >= 0; i--){
-						if (!child.hasChild(path.get(i))){
-							child.addChild(path.get(i));
-							System.out.println("hi");
+					for (int i = path.size() - 2; i >= 0; i--){
+						if (!dataBase.contains(path.get(i))){
+							dataBase.addNode(path.get(i), path.get(i + 1));
 						}
-						child = child.findChild(path.get(i));
 					}
 				} else {
 					System.out.println("This page does not exist");
@@ -88,8 +103,6 @@ public class DegreesToHitler {
 				
 				path.clear();
 				alreadyVisited = "";
-				
-				System.out.println(dataBase.getRoot().findChild("Federalism").hasChild("Canada"));
 			
 			}
 		}
@@ -98,6 +111,13 @@ public class DegreesToHitler {
 //			System.out.println(link);
 //		}
 		
+		
+		FileOutputStream fileOut = 
+		new FileOutputStream("src/databases/AdolfHitler.txt");
+		ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		out.writeObject(dataBase);
+		out.close();
+		fileOut.close();
 		
 		wiki.logout();
 		
@@ -115,15 +135,15 @@ public class DegreesToHitler {
 		
 		links = clean(links);
 		
-		Node<String> root = dataBase.getRoot();
-		
-		if (searchDataBase(degrees, degrees, root, page, links)){
+		if (searchDataBase(degrees, page, links)){
 			return true;
 		}
 	
 		if (degrees == 1){
 			return false;
 		} else {
+			
+			alreadyVisited+="~" + page + "~";
 			
 			for (int i = 0; i < links.length && !found; i++){
 				if (!alreadyVisited.contains("~" + links[i] + "~")){
@@ -141,52 +161,30 @@ public class DegreesToHitler {
 		
 	}
 	
-	private static boolean searchDataBase(int degrees, int originalDegrees, Node<String> root, String page, String[] links){
+	private static boolean searchDataBase(int degrees, String page, String[] links){
 		
-		if (degrees < 0){
-			return false;
-		}
+		boolean found = false;
 		
-		int difference = originalDegrees - degrees;
-		
-//		if (degrees == 0){
-//			return false;
-//		}
-		
-		if (difference == 0){
+		for (int i = 1; i <= degrees && !found; i++){
+			ArrayList<String> path = dataBase.findPath(page, i + 1);
 			
-			if(root.getData().equals(page)){
-				path.add(0,root.getData());
-				return true;
-			} else {
-				return searchDataBase(degrees-1, originalDegrees, root, page, links);
+			if (!path.isEmpty()){
+				DegreesToHitler.path = path;
+				found = true;
 			}
 			
-		} else if (difference == 1){
-
-			if (contains(links, root.getData())){
-				path.add(0, root.getData());
-				path.add(0, page);
-				return true;
-			} else {
-				return searchDataBase(degrees-1, originalDegrees, root, page, links);
-			}
+			for (int j = 0; j < links.length && !found && i!=1; j++){
+				path = dataBase.findPath(links[j], i);
 				
-		} else if (difference >= 2){
-			List<Node<String>> children = root.getChildren();
-			
-			boolean found = false;
-			
-			for (int i = 0; i < children.size() && !found; i++){
-				found = searchDataBase(degrees, degrees, children.get(i), page, links);
+				if (!path.isEmpty()){
+					path.add(0, page);
+					DegreesToHitler.path = path;
+					found = true;
+				}
 			}
-			
-			if (found){
-				path.add(root.getData());
-			}
-			return found;
 		}
-		return false;
+		
+		return found;
 	}
 	
 	private static boolean contains(String[] links, String page){
