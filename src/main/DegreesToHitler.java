@@ -1,5 +1,12 @@
 package main;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,28 +21,55 @@ import java.util.Scanner;
 import java.util.logging.Level;
 
 import javax.security.auth.login.FailedLoginException;
+import javax.swing.JPanel;
 
 import org.wikipedia.Wiki;
 
 import tree.Tree;
 
-public class DegreesToHitler {
+public class DegreesToHitler extends JPanel implements Runnable, KeyListener, MouseListener, MouseWheelListener, MouseMotionListener{
 	
-	private static ArrayList<String> path;
+	public static final int WIDTH = 1024;
+	public static final int HEIGHT = 700;
 	
-	private static String alreadyVisited = "";
-	static Wiki wiki = new Wiki("en.wikipedia.org");
+	private Thread thread;
+	private boolean running;
+	private int FPS;
+	private long targetTime;
+	
+	private BufferedImage image;
+	private Graphics2D g;
+	
+	
+	private ArrayList<String> path;
+	
+	private String alreadyVisited;
+	private Wiki wiki;
 	
 	private static Tree<String> dataBase;
-
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		@SuppressWarnings("resource")
-		Scanner in = new Scanner(System.in);
+	
+	public DegreesToHitler(){
+		super();
+		setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		setFocusable(true);
+		requestFocus();
+		FPS = 30;
+		targetTime = 1000/FPS;
+		
+		path = new ArrayList<String>();
+		alreadyVisited = "";
+		
+		wiki = new Wiki("en.wikipedia.org");
+		
+	}
+	
+	private void init() throws IOException, ClassNotFoundException{
+		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		g = (Graphics2D) image.getGraphics();
+		running = true;
 		
 		wiki.setThrottle(0);
 		//wiki.setLogLevel(Level.OFF);
-		
-		path = new ArrayList<String>();
 	
 		try {
 			wiki.login("DegreesOfWiki", "5orless");
@@ -67,6 +101,24 @@ public class DegreesToHitler {
 				dataBase.addNode(linksToHitler[i], "Adolf Hitler");
 			}
 		}
+	}
+	
+	public void run(){
+		try {
+			init();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		long start, elapsed, wait;
+		
+		
+	}
+
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
+		Scanner in = new Scanner(System.in);
 		
 		boolean running = true;
 		

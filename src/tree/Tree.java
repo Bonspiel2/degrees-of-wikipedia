@@ -35,7 +35,7 @@ public class Tree<T> implements java.io.Serializable{
 			
 			Node<T> parentNode = foundNode;
 			
-			for (int i = 0; i < branches; i++){
+			for (int i = 0; i < branches && parentNode!=null; i++){
 				path.add(parentNode.getData());
 				parentNode = parentNode.getParent();
 			}
