@@ -1,8 +1,10 @@
 package main;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
@@ -27,7 +29,7 @@ import org.wikipedia.Wiki;
 
 import tree.Tree;
 
-public class DegreesToHitler extends JPanel implements Runnable, KeyListener, MouseListener, MouseWheelListener, MouseMotionListener{
+public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
 	
 	public static final int WIDTH = 1024;
 	public static final int HEIGHT = 700;
@@ -103,6 +105,15 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 		}
 	}
 	
+	public void addNotify(){	// declares parent status and adds listeners
+		super.addNotify();
+		if(thread == null){
+			thread = new Thread(this);
+			addMouseListener(this);
+			thread.start();
+		}
+	}
+	
 	public void run(){
 		try {
 			init();
@@ -114,49 +125,72 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 		
 		long start, elapsed, wait;
 		
+		while (running){
+			start = System.nanoTime();
+			
+			update();
+			draw();
+			drawToScreen();
+			
+			elapsed = System.nanoTime() - start;
+			wait = targetTime - elapsed/100000;
+			
+			if (wait < 0){
+				wait = 0;
+			}
+			
+			try {
+				Thread.sleep(wait);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
 		
 	}
+	
+	private void drawToScreen(){
+		Graphics g2 = getGraphics();
+		g2.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
+		g2.dispose();
+	}
 
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		Scanner in = new Scanner(System.in);
+	private void update(){
 		
-		boolean running = true;
-		
-		while (running){
-			System.out.println("Enter a page to start from: ");
-			String firstPage = in.nextLine();
-			
-			if (firstPage.equals("~exit")){
-				running = false;
-			} else {
-			
-				//String[] links = wiki.getLinksOnPage(firstPage);
-				
-				//links = clean(links);
-				
+		String firstPage = "Cole";
+
+		if (firstPage.equals("~exit")){
+			running = false;
+		} else {
+
+			try {
 				findHitler(firstPage, 5);
-				
-				if (!path.isEmpty()){
-					for (int i = 0; i < path.size(); i++){
-						System.out.print(path.get(i) + " > ");
-					}
-					System.out.println();
-					
-					
-					
-					for (int i = path.size() - 2; i >= 0; i--){
-						if (!dataBase.contains(path.get(i))){
-							dataBase.addNode(path.get(i), path.get(i + 1));
-						}
-					}
-				} else {
-					System.out.println("This page does not exist");
-				}
-				
-				path.clear();
-				alreadyVisited = "";
-			
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
+			if (!path.isEmpty()){
+				for (int i = 0; i < path.size(); i++){
+					System.out.print(path.get(i) + " > ");
+				}
+				System.out.println();
+
+
+
+				for (int i = path.size() - 2; i >= 0; i--){
+					if (!dataBase.contains(path.get(i))){
+						dataBase.addNode(path.get(i), path.get(i + 1));
+					}
+				}
+			} else {
+				System.out.println("This page does not exist");
+			}
+
+			path.clear();
+			alreadyVisited = "";
+
 		}
 		
 //		for (String link : links){
@@ -164,19 +198,38 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 //		}
 		
 		
-		FileOutputStream fileOut = 
-		new FileOutputStream("src/databases/AdolfHitler.txt");
-		ObjectOutputStream out = new ObjectOutputStream(fileOut);
-		out.writeObject(dataBase);
-		out.close();
-		fileOut.close();
-		
-		wiki.logout();
+//		FileOutputStream fileOut = 
+//		new FileOutputStream("src/databases/AdolfHitler.txt");
+//		ObjectOutputStream out = new ObjectOutputStream(fileOut);
+//		out.writeObject(dataBase);
+//		out.close();
+//		fileOut.close();
+//		
+//		wiki.logout();
 		
 
 	}
 	
-	public static boolean findHitler(String page, int degrees) throws IOException{
+	private void draw(){
+		g.drawString("Degrees to Hitler", 300, 20);
+	}
+	
+	public void mouseClicked(MouseEvent e){
+	}
+	
+	public void mousePressed(MouseEvent e){
+	}
+	
+	public void mouseReleased(MouseEvent e){
+	}
+	
+	public void mouseEntered(MouseEvent e){
+	}
+	
+	public void mouseExited(MouseEvent e){
+	}
+	
+	public boolean findHitler(String page, int degrees) throws IOException{
 		if (degrees == 0){
 			return false;
 		}
@@ -213,7 +266,7 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 		
 	}
 	
-	private static boolean searchDataBase(int degrees, String page, String[] links){
+	private boolean searchDataBase(int degrees, String page, String[] links){
 		
 		boolean found = false;
 		
@@ -221,7 +274,7 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 			ArrayList<String> path = dataBase.findPath(page, i + 1);
 			
 			if (!path.isEmpty()){
-				DegreesToHitler.path = path;
+				this.path = path;
 				found = true;
 			}
 			
@@ -230,7 +283,7 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 				
 				if (!path.isEmpty()){
 					path.add(0, page);
-					DegreesToHitler.path = path;
+					this.path = path;
 					found = true;
 				}
 			}
@@ -239,7 +292,7 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 		return found;
 	}
 	
-	private static boolean contains(String[] links, String page){
+	private boolean contains(String[] links, String page){
 		for (String link : links){
 			if (link.equals(page)){
 				return true;
@@ -248,7 +301,7 @@ public class DegreesToHitler extends JPanel implements Runnable, KeyListener, Mo
 		return false;
 	}
 	
-	private static String[] clean(String[] links) throws IOException{
+	private String[] clean(String[] links) throws IOException{
 		
 		for (int i = 0; i < links.length; i++){
 			if (wiki.namespace(links[i]) != Wiki.MAIN_NAMESPACE){
