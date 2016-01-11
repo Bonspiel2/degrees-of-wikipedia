@@ -3,6 +3,8 @@ package main;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,12 +26,13 @@ import java.util.logging.Level;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.wikipedia.Wiki;
 
 import tree.Tree;
 
-public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
+public class DegreesToHitler extends JPanel implements Runnable, MouseListener, ActionListener{
 	
 	public static final int WIDTH = 1024;
 	public static final int HEIGHT = 700;
@@ -42,6 +45,7 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
 	private BufferedImage image;
 	private Graphics2D g;
 	
+	private JTextField textBox;
 	
 	private ArrayList<String> path;
 	
@@ -57,6 +61,8 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
 		requestFocus();
 		FPS = 30;
 		targetTime = 1000/FPS;
+		
+		textBox = new JTextField(30);
 		
 		path = new ArrayList<String>();
 		alreadyVisited = "";
@@ -110,6 +116,7 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
 		if(thread == null){
 			thread = new Thread(this);
 			addMouseListener(this);
+			textBox.addActionListener(this);
 			thread.start();
 		}
 	}
@@ -309,6 +316,12 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener{
 			}
 		}
 		return links;
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 	
