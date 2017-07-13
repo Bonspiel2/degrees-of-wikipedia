@@ -6,10 +6,10 @@ public class UserInterface {
 
 	public static void main(String[] args) {
 		
-		JFrame window = new JFrame("DegreesToHitler");
+		JFrame window = new JFrame("Degrees to Hitler");
+		
 		
 		window.setContentPane(new DegreesToHitler());
-		
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setResizable(false);
 		window.pack(); 

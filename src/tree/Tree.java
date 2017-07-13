@@ -14,7 +14,7 @@ public class Tree<T> implements java.io.Serializable{
 		
 	}
 	
-	public void addNode(T data, T parent){
+	public void addNode(T data, T parent){ //adds a node with a certain parent node
 		Node<T> parentNode = findNode(parent, root);
 		
 		if (parentNode != null){
@@ -22,11 +22,11 @@ public class Tree<T> implements java.io.Serializable{
 		}
 	}
 	
-	public boolean contains(T data){
+	public boolean contains(T data){ //checks if the tree contains the data
 		return findNode(data, root) != null;
 	}
 	
-	public ArrayList<T> findPath(T data, int branches){
+	public ArrayList<T> findPath(T data, int branches){  // finds a path from the root to the data
 		ArrayList<T> path = new ArrayList<T>();
 		
 		Node<T> foundNode = findNode(data, root, branches);
@@ -45,7 +45,7 @@ public class Tree<T> implements java.io.Serializable{
 		return path;
 	}
 	
-	private Node<T> findNode(T data, Node<T> root){
+	private Node<T> findNode(T data, Node<T> root){ //finds a node that is a child of the root node given
 		if(data.equals(root.getData())){
 			return root;
 		} else {
@@ -65,7 +65,7 @@ public class Tree<T> implements java.io.Serializable{
 		}
 	}
 	
-	private Node<T> findNode(T data, Node<T> root, int branches){
+	private Node<T> findNode(T data, Node<T> root, int branches){ //finds a node containing the data under the root node only going "branches" nodes deep
 		
 		if (branches <= 0){
 			return null;
@@ -111,7 +111,7 @@ public class Tree<T> implements java.io.Serializable{
 			children.add(new Node<T>(child, this));
 		}
 		
-		public Node<T> findChild(T childToFind){
+		public Node<T> findChild(T childToFind){ //returns the child of a node
 			
 			T data = childToFind;
 			
@@ -125,7 +125,7 @@ public class Tree<T> implements java.io.Serializable{
 			
 		}
 		
-		public boolean hasChild(T data){
+		public boolean hasChild(T data){ // returns whether the node had this child
 			for (Node<T> child : children){
 				if (child.getData().equals(data)){
 					return true;

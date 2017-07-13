@@ -1496,10 +1496,13 @@ public class Wiki implements Serializable
         if (namespaces == null)
             populateNamespaceCache();
 
-        // sanitise
+        // perform a limited normalization
+        if (title.startsWith(":"))
+            title = title.substring(1);
         if (!title.contains(":"))
             return MAIN_NAMESPACE;
-        String namespace = title.substring(0, title.indexOf(':'));
+        title = title.replace("_", " ");
+        String namespace = title.substring(0, 1).toUpperCase() + title.substring(1, title.indexOf(':'));
 
         // look up the namespace of the page in the namespace cache
         if (!namespaces.containsKey(namespace))
@@ -5017,7 +5020,7 @@ public class Wiki implements Serializable
 
     /**
      *  Looks up a particular user in the IP block list, i.e. whether a user
-     *  is currently blocked. Equivalent to [[Special:Ipblocklist]].
+     *  is currently blocked. Equivalent to [[Special:BlockList]].
      *
      *  @param user a username or IP (e.g. "127.0.0.1")
      *  @return the block log entry
@@ -5031,7 +5034,7 @@ public class Wiki implements Serializable
 
     /**
      *  Lists currently operating blocks that were made in the specified
-     *  interval. Equivalent to [[Special:Ipblocklist]].
+     *  interval. Equivalent to [[Special:BlockList]].
      *
      *  @param start the start date
      *  @param end the end date
@@ -5046,10 +5049,9 @@ public class Wiki implements Serializable
 
     /**
      *  Fetches part of the list of currently operational blocks. Equivalent to
-     *  [[Special:Ipblocklist]]. WARNING: cannot tell whether a particular IP
-     *  is autoblocked as this is non-public data (see also [[bugzilla:12321]]
-     *  and [[foundation:Privacy policy]]). Don't call this directly, use one
-     *  of the two above methods instead.
+     *  [[Special:BlockList]]. WARNING: cannot tell whether a particular IP
+     *  is autoblocked as this is non-public data (see [[wmf:Privacy policy]]).
+     *  Don't call this directly, use one of the two above methods instead.
      *
      *  @param user a particular user that might have been blocked. Use "" to
      *  not specify one. May be an IP (e.g. "127.0.0.1") or a CIDR range (e.g.
@@ -7007,21 +7009,21 @@ public class Wiki implements Serializable
             }
             temp = text.toString();
         }
-        if (temp.contains("<error code="))
-        {
-            // assertions
-            if ((assertion & ASSERT_BOT) == ASSERT_BOT && temp.contains("error code=\"assertbotfailed\""))
-                // assert !temp.contains("error code=\"assertbotfailed\"") : "Bot privileges missing or revoked, or session expired.";
-                throw new AssertionError("Bot privileges missing or revoked, or session expired.");
-            if ((assertion & ASSERT_USER) == ASSERT_USER && temp.contains("error code=\"assertuserfailed\""))
-                // assert !temp.contains("error code=\"assertuserfailed\"") : "Session expired.";
-                throw new AssertionError("Session expired.");
-            // Something *really* bad happened. Most of these are self-explanatory
-            // and are indicative of bugs (not necessarily in this framework) or
-            // can be avoided entirely.
-            if (!temp.matches("code=\"(rvnosuchsection)")) // list "good" errors here
-                throw new UnknownError("MW API error. Server response was: " + temp);
-        }
+//        if (temp.contains("<error code="))
+//        {
+//            // assertions
+//            if ((assertion & ASSERT_BOT) == ASSERT_BOT && temp.contains("error code=\"assertbotfailed\""))
+//                // assert !temp.contains("error code=\"assertbotfailed\"") : "Bot privileges missing or revoked, or session expired.";
+//                throw new AssertionError("Bot privileges missing or revoked, or session expired.");
+//            if ((assertion & ASSERT_USER) == ASSERT_USER && temp.contains("error code=\"assertuserfailed\""))
+//                // assert !temp.contains("error code=\"assertuserfailed\"") : "Session expired.";
+//                throw new AssertionError("Session expired.");
+//            // Something *really* bad happened. Most of these are self-explanatory
+//            // and are indicative of bugs (not necessarily in this framework) or
+//            // can be avoided entirely.
+//            if (!temp.matches("code=\"(rvnosuchsection)")) // list "good" errors here
+//                throw new UnknownError("MW API error. Server response was: " + temp);
+//        }
         return temp;
     }
 
@@ -7512,7 +7514,6 @@ public class Wiki implements Serializable
     /**
      *  Grabs cookies from the URL connection provided.
      *  @param u an unconnected URLConnection
-     *  @param map the cookie store
      */
     private void grabCookies(URLConnection u)
     {
