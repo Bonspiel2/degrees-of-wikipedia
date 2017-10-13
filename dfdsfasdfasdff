@@ -1,0 +1,101 @@
+[33mcommit 25b4299653553c5b00aef2db150c964e71206d59[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Thu Jul 13 13:07:40 2017 -0600
+
+    Finished project
+
+[33mcommit b7d2b257a4bcfa5c24e4941937ce8955b2ada348[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Mon Jan 11 15:33:25 2016 -0700
+
+    Worked on textbox
+
+[33mcommit 289f03236a9958b6e6094c920f8acf98a9f1bf3d[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Fri Jan 8 13:05:40 2016 -0700
+
+    Made it runnable
+
+[33mcommit 096a454901360fe3d93dfb80cb91b1464e01f630[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Thu Jan 7 14:07:57 2016 -0700
+
+    Worked on UI
+
+[33mcommit 2d54a9598e0ef5dae82b65b9e5bab5990e121aa3[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Wed Jan 6 15:39:33 2016 -0700
+
+    Added to database
+
+[33mcommit a6246f5f07ae097d4b58701665299c0e507aed3a[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Tue Jan 5 23:58:44 2016 -0700
+
+    Redid the database and included saving
+
+[33mcommit 87e4de40ed0bdfa2ae0516a80be9b0645295bddb[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Wed Dec 16 15:39:50 2015 -0700
+
+    Fixed root bug
+
+[33mcommit 92a03768f57bbfc38ce55fea51da5aff6c113db1[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Wed Dec 16 00:09:15 2015 -0700
+
+    Worked on database storage
+
+[33mcommit eadbe1b709ce27d5c8daca6899338a34486760fc[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Tue Dec 15 14:07:11 2015 -0700
+
+    Worked on tree implementation
+
+[33mcommit c5e486ef1e0a238331dab288ce2f9aba958102a1[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Mon Dec 14 23:52:28 2015 -0700
+
+    Worked on searching through database
+
+[33mcommit d3676b1966f0ce1646dc5607194483cc843788d9[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Mon Dec 14 15:39:45 2015 -0700
+
+    Added tree database
+
+[33mcommit e58460bfd356a730190c192aca84b090cd836caa[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Mon Dec 14 07:41:44 2015 -0700
+
+    Fixed redirect bug
+
+[33mcommit 99d002e42962e7f44484741f138ab638b65c6c91[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Fri Dec 11 13:08:18 2015 -0700
+
+    Bug fix
+
+[33mcommit dce4d06bdd7bc548de98c98d5796349676c87884[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Wed Dec 9 23:47:01 2015 -0700
+
+    Added checking for the articles that link to hitler
+
+[33mcommit 18ecbff653c292cf69b3308c2120d32d1272047e[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Wed Dec 9 15:39:59 2015 -0700
+
+    Added everything
+
+[33mcommit 5d8d3e3bc0083d18a046946c90d65f563e5b9ea8[m
+Author: Bonspiel2 <cole_adams@shaw.ca>
+Date:   Tue Dec 8 23:28:52 2015 -0700
+
+    Created Readme
+
+[33mcommit 11602eb083f5906d153a880bbc60218e8a4c3238[m
+Author: Bonspiel2 <cafrench99@gmail.com>
+Date:   Tue Dec 8 23:25:35 2015 -0700
+
+    Initial Commit
