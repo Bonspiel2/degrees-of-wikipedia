@@ -29,76 +29,79 @@ public class MeetInTheMiddle {
 	}
 
 	public String find(String page) throws IOException{
-		Queue<Page> s = new LinkedList<Page>();
-		ArrayList<Page> g = new ArrayList<Page>();
-		ArrayList<String> alreadyChecked = new ArrayList<String>();
+		ArrayList<ArrayList<Page>> s = new ArrayList<ArrayList<Page>>();
+		ArrayList<ArrayList<Page>> g = new ArrayList<ArrayList<Page>>();
+		ArrayList<String> alreadyCheckedL = new ArrayList<String>();
+		ArrayList<String> alreadyCheckedR = new ArrayList<String>();
 
-		int levelTotal = 1;
-		int nextLevelTotal = 0;
+		int currentLevel = 0;
 
-		int endLayerTotal = 1;
-		int nextEndLayerTotal = 0;
+		s.add(new ArrayList<Page>());
+		s.get(0).add(new Page(page));
 
-		s.add(new Page(page));
-		alreadyChecked.add(page);
-		g.add(new Page(goal));
+		alreadyCheckedL.add(page);
 
-		boolean found = false; 
+		g.add(new ArrayList<Page>());
+		g.get(0).add(new Page(goal));
+
+		alreadyCheckedR.add(goal);
+
+		boolean found = false;
+		boolean equal = true;
 
 		while(!found) {
-			Page curPage = s.poll();
-			levelTotal--;
+			ArrayList<Page> workingStartSet = s.get(currentLevel);
+			ArrayList<Page> workingEndSet = g.get(0);
+
 			//Checks to see if we have a link to the goal from the current page
-			for (Page p : g) {
-				if (curPage.equals(p)) {
-					found = true;
-					return print(curPage, p);
-				}
-			}
-
-			//Adds all linked pages to Queue
-			String[] linkP = wiki.getLinksOnPage(curPage.title);
-			for (String link : linkP) {
-				if (!link.contains(":") && !alreadyChecked.contains(link)) {
-					s.add(new Page(link, curPage, null));
-					alreadyChecked.add(link);
-					nextLevelTotal++;
-				}
-			}
-
-			//Adds pages another layer of linked pages
-			if (levelTotal == 0) {
-				levelTotal = nextLevelTotal;
-				nextLevelTotal = 0;
-				//If not first iteration
-				if (!(nextEndLayerTotal == 0)) {
-					//Removes irrelevant layer
-					for (int i = 0; i < endLayerTotal; i++) {
-						g.remove(0);
+			int startCounter = 0;
+			
+			for (Page start : workingStartSet) {
+				int endCounter = 0;
+				startCounter++;
+				for (Page end : workingEndSet) {
+					endCounter++;
+					if (start.equals(end)) {
+						found = true;
+						return print(start, end);
 					}
-					endLayerTotal = nextEndLayerTotal;
 				}
+			}
 
-				//Adds next layer to end list
-				int counter = 0;
-				ArrayList<Page> newPages = new ArrayList<Page>();
-				for (Page p : g) {
-					String[] prevLayer = wiki.whatLinksHere(p.getTitle(), Wiki.MAIN_NAMESPACE);
+
+
+			if (equal) {
+				//Adds all linked pages to next set
+				currentLevel++;
+				ArrayList<Page> nextLevel = new ArrayList<Page>();
+				for (Page p : workingStartSet) {
+					String[] linkP = wiki.getLinksOnPage(p.title);
+					for (String link : linkP) {
+						if (!link.contains(":") && !alreadyCheckedL.contains(link)) {
+							nextLevel.add(new Page(link, p, null));
+							alreadyCheckedL.add(link);
+						}
+					}
+				}
+				s.add(nextLevel);
+				equal = false;
+			} else {
+				//Adds pages another layer of linked pages
+				ArrayList<Page> nextLevel = new ArrayList<Page>();
+				for (Page e : workingEndSet) {
+					String[] prevLayer = wiki.whatLinksHere(e.getTitle(), Wiki.MAIN_NAMESPACE);
 
 					for (String newP : prevLayer) {
-						newPages.add(new Page(newP, null, p));
-						counter++;
+						nextLevel.add(new Page(newP, null, e));
+						alreadyCheckedR.add(newP);
 					}
 				}
-
-				nextEndLayerTotal = counter;
-				g.addAll(newPages);
+				g.add(0,nextLevel);
+				equal = true;
 			}
-
 		}
-
-
-		return goal;
+		
+		return null;
 
 	}
 
@@ -182,12 +185,12 @@ public class MeetInTheMiddle {
 			System.out.println("failed to login");
 		}
 
-		wiki.setResolveRedirects(true);
+		wiki.setResolveRedirects(true); 
 
 		MeetInTheMiddle hitler = new MeetInTheMiddle("Adolf Hitler", wiki);
 
 		try {
-			System.out.println(hitler.find("Europe"));
+			System.out.println(hitler.find("Quinn"));
 		} catch (IOException ioe) {
 
 		}
