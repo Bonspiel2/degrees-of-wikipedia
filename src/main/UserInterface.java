@@ -9,7 +9,7 @@ public class UserInterface {
 		JFrame window = new JFrame("Degrees to Hitler");
 		
 		
-		window.setContentPane(new DegreesToHitler());
+		window.setContentPane(new DegreesToChurchill());
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setResizable(false);
 		window.pack(); 

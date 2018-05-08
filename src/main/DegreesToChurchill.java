@@ -44,7 +44,7 @@ import org.wikipedia.Wiki;
 import tree.Tree;
 import utilities.Button;
 
-public class DegreesToHitler extends JPanel implements Runnable, MouseListener, ActionListener{
+public class DegreesToChurchill extends JPanel implements Runnable, MouseListener, ActionListener{
 
 	//dimensions
 	public static final int WIDTH = 1024;
@@ -81,7 +81,7 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener, 
 	//found path
 	private volatile ArrayList<String> path;
 
-	public DegreesToHitler(){  // Game constructor
+	public DegreesToChurchill(){  // Game constructor
 		super();
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		setFocusable(true);
