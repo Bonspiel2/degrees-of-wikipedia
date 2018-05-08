@@ -222,6 +222,10 @@ public class DegreesToHitler extends JPanel implements Runnable, MouseListener, 
 
 					g.fillPolygon(xPoints, yPoints, 3);
 				}
+				
+				if (i >= path.size()) {
+					i--;
+				}
 
 				String[] str = path.get(i).split(" ");
 
