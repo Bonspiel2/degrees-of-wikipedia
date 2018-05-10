@@ -6,7 +6,7 @@ public class UserInterface {
 
 	public static void main(String[] args) {
 		
-		JFrame window = new JFrame("Degrees to Hitler");
+		JFrame window = new JFrame("Degrees to Churchill");
 		
 		
 		window.setContentPane(new DegreesToChurchill());

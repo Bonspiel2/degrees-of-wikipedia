@@ -2,7 +2,6 @@
 //CS 30 William Aberhart High School
 package main;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,33 +13,24 @@ import java.awt.TextField;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.logging.Level;
 
-import javax.imageio.ImageIO;
 import javax.security.auth.login.FailedLoginException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-import org.wikipedia.Wiki;
-
+import fastily.jwiki.core.NS;
+import fastily.jwiki.core.Wiki;
 import tree.Tree;
 import utilities.Button;
 
@@ -68,7 +58,7 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 	private BufferedImage image;
 	private Image loadingGif;
 	private Font titleFont;
-	private Font hitlerFont;
+	private Font churchillFont;
 	private Font buttonFont;
 
 	//utilies
@@ -182,9 +172,9 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 		g.setFont(titleFont);
 		g.setColor(new Color(92, 75, 81));
 		g.drawString("Degrees to", 50, 80);
-		g.setFont(hitlerFont);
+		g.setFont(churchillFont);
 		g.setColor(new Color(241, 98, 92));
-		g.drawString("Hitler", 600, 80);
+		g.drawString("Churchill", 600, 80);
 
 		//buttons
 		g.setFont(buttonFont);
@@ -380,12 +370,12 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 
 			try {
 				File fontFile = new File("src/resources/MotionPicture_PersonalUseOnly.ttf");
-				hitlerFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(Font.BOLD, 90f);
+				churchillFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(Font.BOLD, 90f);
 
 				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				ge.registerFont(hitlerFont);
+				ge.registerFont(churchillFont);
 			} catch(Exception e) {
-				hitlerFont = new Font("SansSerif", Font.BOLD, 48);
+				churchillFont = new Font("SansSerif", Font.BOLD, 48);
 			}
 
 			try {
@@ -399,25 +389,14 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 			}
 
 
-			//Loading wiki api
-			wiki.setThrottle(0);
-			wiki.setLogLevel(Level.OFF);
-
-			try {
-				wiki.login("DegreesOfWiki", "5orless");
-			} catch (FailedLoginException | IOException e) {
-				System.out.println("failed to login");
-			}
-
-			wiki.setResolveRedirects(true);
-
+			wiki.login("DegreesOfWiki", "5orless");
 
 			//loading database
-			File tmpFile = new File("src/databases/AdolfHitler.txt");
+			File tmpFile = new File("src/databases/WinstonChurchill.txt");
 
 			if (tmpFile.exists()){
 
-				FileInputStream fileIn = new FileInputStream("src/databases/AdolfHitler.txt");
+				FileInputStream fileIn = new FileInputStream("src/databases/WinstonChurchill.txt");
 				ObjectInputStream inFile = new ObjectInputStream(fileIn);
 				dataBase = (Tree<String>) inFile.readObject();
 				inFile.close();
@@ -426,12 +405,12 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 
 				tmpFile.createNewFile();
 
-				dataBase = new Tree<String>("Adolf Hitler");
+				dataBase = new Tree<String>("Winston Churchill");
 
-				String[] linksToHitler = wiki.whatLinksHere("Adolf Hitler", Wiki.MAIN_NAMESPACE);
+				ArrayList<String> linksToChurchill = wiki.whatLinksHere("Winston Churchill", false);
 
-				for (int i = 0; i < linksToHitler.length; i++){
-					dataBase.addNode(linksToHitler[i], "Adolf Hitler");
+				for (int i = 0; i < linksToChurchill.size(); i++){
+					dataBase.addNode(linksToChurchill.get(i), "Winston Churchill");
 				}
 			}
 
@@ -469,9 +448,11 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 		private void find(String firstPage){
 
 			path.clear();
+			
+			firstPage = wiki.resolveRedirect(firstPage);
 
 			try {
-				findHitler(firstPage, 5);
+				findChurchill(firstPage, 5);
 			} catch (IOException e) {
 			}
 
@@ -493,7 +474,7 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 
 		}
 
-		public boolean findHitler(String page, int degrees) throws IOException{
+		public boolean findChurchill(String page, int degrees) throws IOException{
 
 			path.add(page); 
 
@@ -504,28 +485,27 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 
 			boolean found = false;
 
-			String[] links = wiki.getLinksOnPage(page);
+			ArrayList<String> links = wiki.getLinksOnPage(page, NS.MAIN);
 
-			links = clean(links); //removes links not in the default namespace
+			links = wiki.filterByNS(links, NS.MAIN); //removes links not in the default namespace
 
 			if (searchDataBase(degrees, page, links)){ //checks if the page is already in the database
 				return true;
 			}
 
 			if (degrees == 1){
-				path.remove(path.size() - 1); //No link to hitler here means this is not a path
+				path.remove(path.size() - 1); //No link to churchill here means this is not a path
 				return false;
 			} else {
 
 				alreadyVisited+="~" + page + "~"; //adds page to the already visited string
 
-				for (int i = 0; i < links.length && !found; i++){
-					if (!alreadyVisited.contains("~" + links[i] + "~")){ //checks if the page has already been visited
-
-						if (findHitler(links[i], degrees - 1)){
+				for (int i = 0; i < links.size() && !found; i++){
+					if (!alreadyVisited.contains("~" + links.get(i) + "~")){ //checks if the page has already been visited
+						if (findChurchill(links.get(i), degrees - 1)){
 							found = true;
 						} else {
-							alreadyVisited+="~" + links[i] + "~";
+							alreadyVisited+="~" + links.get(i) + "~";
 						}
 					}
 				}
@@ -537,7 +517,7 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 
 		}
 
-		private boolean searchDataBase(int degrees, String page, String[] links){
+		private boolean searchDataBase(int degrees, String page, ArrayList<String> links){
 
 			boolean found = false;
 
@@ -552,8 +532,8 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 					found = true;
 				}
 
-				for (int j = 0; j < links.length && !found && i!=1; j++){
-					databasePath = dataBase.findPath(links[j], i); // returns a path if it finds the link
+				for (int j = 0; j < links.size() && !found && i!=1; j++){
+					databasePath = dataBase.findPath(links.get(j), i); // returns a path if it finds the link
 
 					if (!databasePath.isEmpty()){
 						for (int x = 0; x < databasePath.size(); x++){
@@ -567,19 +547,9 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 			return found;
 		}
 
-		private String[] clean(String[] links) throws IOException{ //removes links not in the main namespace
-
-			for (int i = 0; i < links.length; i++){
-				if (wiki.namespace(links[i]) != Wiki.MAIN_NAMESPACE){
-					links = Arrays.copyOf(links, i);
-				}
-			}
-			return links;
-		}
-
 		private void save() throws IOException{ //serializes and saves the database
 			FileOutputStream fileOut = 
-					new FileOutputStream("src/databases/AdolfHitler.txt");
+					new FileOutputStream("src/databases/WinstonChurchill.txt");
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 			out.writeObject(dataBase);
 			out.close();
@@ -598,5 +568,52 @@ public class DegreesToChurchill extends JPanel implements Runnable, MouseListene
 			this.task = task;
 		}
 
+	}
+	
+	
+	public static void main(String[] args) {
+		DegreesToChurchill d = new DegreesToChurchill();
+		Finder f = d.new Finder();
+		
+		try {
+			f.init();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> randPages = f.wiki.getRandomPages(1000, NS.MAIN);
+		int counter = 1;
+		for (String s : randPages) {
+			System.out.println("Finding page " + counter + " of 1000");
+			f.find(s);
+			counter++;
+			if (counter % 50 == 0) {
+				try {
+					System.out.println("Saving");
+					f.save();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			System.out.println(printPath(d.path));
+		}
+		System.out.println("Saving");
+		try {
+			f.save();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static String printPath(ArrayList<String> str) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (String s : str) {
+			sb.append(s);
+			sb.append("->");
+		}
+		return sb.toString();
 	}
 }

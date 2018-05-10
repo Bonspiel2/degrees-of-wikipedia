@@ -1,17 +1,13 @@
 package main;
 
 import java.io.IOException;
-import java.util.AbstractQueue;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.logging.Level;
 
 import javax.security.auth.login.FailedLoginException;
 
-import org.wikipedia.Wiki;
+import fastily.jwiki.core.NS;
+import fastily.jwiki.core.Wiki;
 
 public class MeetInTheMiddle {
 	//Left hand queue, right hand list
@@ -75,7 +71,7 @@ public class MeetInTheMiddle {
 				currentLevel++;
 				ArrayList<Page> nextLevel = new ArrayList<Page>();
 				for (Page p : workingStartSet) {
-					String[] linkP = wiki.getLinksOnPage(p.title);
+					ArrayList<String> linkP = wiki.getLinksOnPage(p.title);
 					for (String link : linkP) {
 						if (!link.contains(":") && !alreadyCheckedL.contains(link)) {
 							nextLevel.add(new Page(link, p, null));
@@ -89,7 +85,7 @@ public class MeetInTheMiddle {
 				//Adds pages another layer of linked pages
 				ArrayList<Page> nextLevel = new ArrayList<Page>();
 				for (Page e : workingEndSet) {
-					String[] prevLayer = wiki.whatLinksHere(e.getTitle(), Wiki.MAIN_NAMESPACE);
+					ArrayList<String> prevLayer = wiki.whatLinksHere(e.getTitle(), false);
 
 					for (String newP : prevLayer) {
 						nextLevel.add(new Page(newP, null, e));
@@ -176,16 +172,7 @@ public class MeetInTheMiddle {
 
 		Wiki wiki = new Wiki("en.wikipedia.org");
 
-		wiki.setThrottle(0);
-		wiki.setLogLevel(Level.OFF);
-
-		try {
-			wiki.login("DegreesOfWiki", "5orless");
-		} catch (FailedLoginException | IOException e) {
-			System.out.println("failed to login");
-		}
-
-		wiki.setResolveRedirects(true); 
+		wiki.login("DegreesOfWiki", "5orless");
 
 		MeetInTheMiddle hitler = new MeetInTheMiddle("Adolf Hitler", wiki);
 
